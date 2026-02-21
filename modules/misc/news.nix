@@ -132,9 +132,12 @@ in
   };
 
   config = {
-    news.json.output = pkgs.writeText "hm-news.json" (
-      builtins.toJSON { inherit (cfg) display entries; }
-    );
+    news.json.output = lib.mkMerge [
+      (lib.mkIf (cfg.display != "silent") (pkgs.writeText "hm-news.json" (
+        builtins.toJSON { inherit (cfg) display entries; }
+      )))
+      (lib.mkIf (cfg.display == "silent") (pkgs.writeText "hm-news.json" (builtins.toJSON { inherit (cfg) display; entries = []; })))
+    ];
 
     # News entries are now loaded from individual files in the news directory
     news.entries = newsEntries;
